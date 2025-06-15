@@ -6,7 +6,7 @@ VRなどで人間のユーザの動きをある程度のクォリティで保存
 
 があります。
 
-# Get Started
+# Getting Started
 ## Objects in Sample Scene
 サンプルシーンには以下のゲームオブジェクトがあります。
 
