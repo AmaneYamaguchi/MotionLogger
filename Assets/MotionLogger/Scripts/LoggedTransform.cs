@@ -8,6 +8,12 @@ namespace MotionLogger
 
         [Tooltip("データのラベル。カンマは使わないこと。")]
         [SerializeField] string m_label = "TransformData"; // データのラベル
+        [SerializeField] bool m_useLocalPosition = true;
+        [SerializeField] bool m_useLocalRotation = true;
+        [Header("デシリアライズ設定")]
+        [SerializeField] bool m_deserializePosition = true;
+        [SerializeField] bool m_deserializeRotation = true;
+        [SerializeField] bool m_deserializeScale = false;
 
         public static string Header
         {
@@ -22,15 +28,17 @@ namespace MotionLogger
         public static int ValueCount => 11; // ラベルに加え、位置、回転、スケールの値がそれぞれ3つ、4つ、3つで合計11個
         public string[] Serialize()
         {
+            var pos = m_useLocalPosition ? transform.localPosition : transform.position;
+            var rot = m_useLocalRotation ? transform.localRotation : transform.rotation;
             return new string[]
             {
                 m_label,
-                transform.position.x.ToString(),
-                transform.position.y.ToString(),
-                transform.position.z.ToString(),
-                transform.rotation.x.ToString(),
-                transform.rotation.y.ToString(),
-                transform.rotation.z.ToString(),
+                pos.x.ToString(),
+                pos.y.ToString(),
+                pos.z.ToString(),
+                rot.x.ToString(),
+                rot.y.ToString(),
+                rot.z.ToString(),
                 transform.rotation.w.ToString(),
                 transform.localScale.x.ToString(),
                 transform.localScale.y.ToString(),
@@ -58,9 +66,24 @@ namespace MotionLogger
                 Debug.LogError($"Label mismatch: expected '{m_label}', got '{label}'.");
                 return;
             }
-            transform.position = new Vector3(float.Parse(positionX), float.Parse(positionY), float.Parse(positionZ));
-            transform.rotation = new Quaternion(float.Parse(rotationX), float.Parse(rotationY), float.Parse(rotationZ), float.Parse(rotationW));
-            transform.localScale = new Vector3(float.Parse(scaleX), float.Parse(scaleY), float.Parse(scaleZ));
+            if (m_deserializePosition)
+            {
+                var pos = new Vector3(float.Parse(positionX), float.Parse(positionY), float.Parse(positionZ));
+                if (m_useLocalPosition)
+                    transform.localPosition = pos;
+                else
+                    transform.position = pos;
+            }
+            if (m_deserializeRotation)
+            {
+                var rot = new Quaternion(float.Parse(rotationX), float.Parse(rotationY), float.Parse(rotationZ), float.Parse(rotationW));
+                if (m_useLocalRotation)
+                    transform.localRotation = rot;
+                else
+                    transform.rotation = rot;
+            }
+            if (m_deserializeScale)
+                transform.localScale = new Vector3(float.Parse(scaleX), float.Parse(scaleY), float.Parse(scaleZ));
         }
     }
 }
